@@ -117,23 +117,23 @@ function setupCVDownload() {
                         link.href = blobUrl;
                         link.download = fileName;
                         link.style.display = 'none';
-                        
+
                         document.body.appendChild(link);
                         link.click();
                         document.body.removeChild(link);
-                        
+
                         setTimeout(() => {
                             window.URL.revokeObjectURL(blobUrl);
                         }, 1000);
 
                         showDownloadSuccess('CV Downloaded Successfully!');
-                        
+
                         console.log('CV download completed:', fileName);
                     })
                     .catch(error => {
                         clearTimeout(downloadTimeout);
                         console.error('Download failed:', error);
-                        
+
                         showDownloadMessage('Download failed. Please try again or contact me.', 'error');
                     })
                     .finally(() => {
@@ -159,7 +159,7 @@ function showDownloadSuccess(message) {
     // Create centered message element
     const messageEl = document.createElement('div');
     messageEl.className = 'download-message download-success';
-    
+
     messageEl.innerHTML = `
         <div class="message-container">
             <div class="panda-animation">
@@ -195,7 +195,7 @@ function showDownloadSuccess(message) {
     // Animate in
     requestAnimationFrame(() => {
         messageEl.classList.add('message-visible');
-        
+
         // Trigger thumbs-up animation after a delay
         setTimeout(() => {
             const thumbsUp = messageEl.querySelector('.thumbs-up');
@@ -227,12 +227,12 @@ function showDownloadMessage(message, type) {
 
     const messageEl = document.createElement('div');
     messageEl.className = `download-message download-${type}`;
-    
+
     const icons = {
         error: '⚠',
         info: 'ⓘ'
     };
-    
+
     messageEl.innerHTML = `
         <div class="message-container">
             <div class="message-icon">${icons[type]}</div>
@@ -574,7 +574,7 @@ function addDownloadStyles() {
 }
 
 // Initialize on page load
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     addDownloadStyles();
     setupCVDownload();
 });
@@ -721,7 +721,7 @@ function handleFormSubmission() {
 
             // Create mailto link with only message
             const mailtoLink = `mailto:developer89365@gmail.com?subject=Portfolio%20Inquiry&body=${encodeURIComponent(message)}`;
-            
+
             // Open email client
             window.location.href = mailtoLink;
 
