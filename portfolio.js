@@ -229,7 +229,7 @@ function addDownloadStyles() {
             100% { transform: rotate(360deg); }
         }
         
-        /* Centered message overlay */
+        /* Centered message overlay - VIBRANT VERSION */
         .download-message {
             position: fixed;
             top: 50%;
@@ -238,14 +238,14 @@ function addDownloadStyles() {
             background: white;
             color: #1a1a1a;
             border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             z-index: 10000;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             opacity: 0;
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             border: 1px solid rgba(0, 0, 0, 0.1);
             overflow: hidden;
-            max-width: 350px;
+            max-width: 380px;
             width: 90%;
         }
         
@@ -255,27 +255,73 @@ function addDownloadStyles() {
         }
         
         .message-container {
-            padding: 24px;
+            padding: 28px;
             text-align: center;
             position: relative;
         }
         
         .message-icon {
-            font-size: 2.5rem;
-            margin-bottom: 16px;
+            font-size: 3rem;
+            margin-bottom: 20px;
             display: block;
+            font-weight: bold;
+        }
+        
+        /* VIBRANT SUCCESS COLORS */
+        .download-success {
+            background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+            border-left: 5px solid #10b981;
         }
         
         .download-success .message-icon {
             color: #10b981;
+            text-shadow: 0 2px 10px rgba(16, 185, 129, 0.3);
+        }
+        
+        .download-success .message-title {
+            color: #065f46;
+            background: linear-gradient(135deg, #065f46, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* VIBRANT ERROR COLORS */
+        .download-error {
+            background: linear-gradient(135deg, #ffffff 0%, #fef2f2 100%);
+            border-left: 5px solid #ef4444;
         }
         
         .download-error .message-icon {
             color: #ef4444;
+            text-shadow: 0 2px 10px rgba(239, 68, 68, 0.3);
+        }
+        
+        .download-error .message-title {
+            color: #7f1d1d;
+            background: linear-gradient(135deg, #7f1d1d, #ef4444);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* VIBRANT INFO COLORS */
+        .download-info {
+            background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%);
+            border-left: 5px solid #3b82f6;
         }
         
         .download-info .message-icon {
             color: #3b82f6;
+            text-shadow: 0 2px 10px rgba(59, 130, 246, 0.3);
+        }
+        
+        .download-info .message-title {
+            color: #1e40af;
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
         .message-content {
@@ -283,45 +329,47 @@ function addDownloadStyles() {
         }
         
         .message-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin: 0 0 8px 0;
-            color: #000;
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin: 0 0 12px 0;
+            letter-spacing: -0.5px;
         }
         
         .message-text {
-            font-size: 0.95rem;
-            color: #666;
+            font-size: 1rem;
+            color: #374151;
             margin: 0;
-            line-height: 1.5;
-            font-weight: 500;
+            line-height: 1.6;
+            font-weight: 600;
         }
         
-        /* Close button */
+        /* Enhanced close button */
         .message-close {
             position: absolute;
-            top: 12px;
-            right: 12px;
-            background: rgba(0, 0, 0, 0.05);
+            top: 16px;
+            right: 16px;
+            background: rgba(0, 0, 0, 0.08);
             border: none;
             border-radius: 50%;
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            color: #666;
-            transition: all 0.2s ease;
-            font-size: 16px;
+            color: #6b7280;
+            transition: all 0.3s ease;
+            font-size: 18px;
+            font-weight: 300;
         }
         
         .message-close:hover {
-            background: rgba(0, 0, 0, 0.1);
-            color: #000;
+            background: rgba(0, 0, 0, 0.15);
+            color: #374151;
+            transform: rotate(90deg);
         }
         
-        /* Backdrop overlay */
+        /* Enhanced backdrop overlay */
         .download-message::before {
             content: '';
             position: fixed;
@@ -330,37 +378,48 @@ function addDownloadStyles() {
             transform: translate(-50%, -50%);
             width: 100vw;
             height: 100vh;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.6);
             z-index: -1;
             opacity: 0;
             transition: opacity 0.3s ease;
+            backdrop-filter: blur(4px);
         }
         
         .download-message.message-visible::before {
             opacity: 1;
         }
         
+        /* Success message pulse animation */
+        .download-success .message-icon {
+            animation: pulseSuccess 2s ease-in-out;
+        }
+        
+        @keyframes pulseSuccess {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
         /* Mobile responsiveness */
         @media (max-width: 480px) {
             .download-message {
-                max-width: 280px;
+                max-width: 320px;
             }
             
             .message-container {
-                padding: 20px;
+                padding: 24px 20px;
             }
             
             .message-icon {
-                font-size: 2rem;
-                margin-bottom: 12px;
+                font-size: 2.5rem;
+                margin-bottom: 16px;
             }
             
             .message-title {
-                font-size: 1.1rem;
+                font-size: 1.3rem;
             }
             
             .message-text {
-                font-size: 0.9rem;
+                font-size: 0.95rem;
             }
         }
     `;
