@@ -1,6 +1,9 @@
 // Theme functionality
 const themeToggle = document.getElementById('themeToggle');
 const themeIcon = themeToggle.querySelector('.theme-icon');
+const hamburger = document.querySelector('.hamburger');
+const navMenu = document.querySelector('.nav-menu');
+const navLinks = document.querySelectorAll('.nav-link');
 
 // Check for saved theme or prefer color scheme
 const savedTheme = localStorage.getItem('theme') ||
@@ -25,11 +28,6 @@ function updateThemeIcon(theme) {
 }
 
 // Mobile menu functionality
-const hamburger = document.querySelector('.hamburger');
-const navMenu = document.querySelector('.nav-menu');
-const navLinks = document.querySelectorAll('.nav-link');
-
-// Toggle mobile menu
 hamburger.addEventListener('click', () => {
     hamburger.classList.toggle('active');
     navMenu.classList.toggle('active');
@@ -76,79 +74,7 @@ window.addEventListener('scroll', () => {
     }
 });
 
-// Simplified CV Download functionality
-function setupCVDownload() {
-    const downloadButtons = document.querySelectorAll('a[download]');
-
-    downloadButtons.forEach(button => {
-        button.addEventListener('click', function (e) {
-            if (this.getAttribute('href').includes('.pdf')) {
-                e.preventDefault();
-
-                const cvUrl = this.getAttribute('href');
-                const fileName = this.getAttribute('download') || 'Kencho_Tshering_CV.pdf';
-
-                // Professional loading state
-                this.classList.add('btn-loading');
-                const originalContent = this.innerHTML;
-                this.innerHTML = `
-                    <span class="loading-spinner"></span>
-                    <span class="loading-text">Preparing Download...</span>
-                `;
-                this.style.pointerEvents = 'none';
-
-                // Download with timeout
-                const downloadTimeout = setTimeout(() => {
-                    showDownloadMessage('Processing your request...', 'info');
-                }, 2500);
-
-                fetch(cvUrl)
-                    .then(response => {
-                        clearTimeout(downloadTimeout);
-                        if (!response.ok) {
-                            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                        }
-                        return response.blob();
-                    })
-                    .then(blob => {
-                        const blobUrl = window.URL.createObjectURL(blob);
-                        const link = document.createElement('a');
-                        link.href = blobUrl;
-                        link.download = fileName;
-                        link.style.display = 'none';
-
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-
-                        setTimeout(() => {
-                            window.URL.revokeObjectURL(blobUrl);
-                        }, 1000);
-
-                        showDownloadSuccess('CV Downloaded Successfully!');
-
-                        console.log('CV download completed:', fileName);
-                    })
-                    .catch(error => {
-                        clearTimeout(downloadTimeout);
-                        console.error('Download failed:', error);
-
-                        showDownloadMessage('Download failed. Please try again or contact me.', 'error');
-                    })
-                    .finally(() => {
-                        setTimeout(() => {
-                            this.innerHTML = originalContent;
-                            this.classList.remove('btn-loading');
-                            this.style.pointerEvents = 'auto';
-                        }, 800);
-                    });
-            }
-        });
-    });
-}
-
-// Professional success message with visible panda animation
-// Professional CV Download functionality - Simplified
+// Professional CV Download functionality
 function setupCVDownload() {
     const downloadButtons = document.querySelectorAll('a[download]');
 
@@ -162,7 +88,6 @@ function setupCVDownload() {
 
                 // Store original button state
                 const originalContent = this.innerHTML;
-                const originalText = this.textContent;
 
                 // Show loading state
                 this.innerHTML = `
@@ -197,7 +122,7 @@ function setupCVDownload() {
                         // Show success message
                         showDownloadMessage('CV downloaded successfully!', 'success');
 
-                        // IMPORTANT: Reset button immediately after download
+                        // Reset button immediately after download
                         resetDownloadButton(this, originalContent);
                     })
                     .catch(error => {
@@ -442,13 +367,7 @@ function addDownloadStyles() {
     document.head.appendChild(style);
 }
 
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', function () {
-    addDownloadStyles();
-    setupCVDownload();
-});
-
-// Animate skill bars when section comes into view
+// Animation functions
 function animateSkillBars() {
     const skillBars = document.querySelectorAll('.skill-progress');
     const aboutSection = document.querySelector('.about');
@@ -471,7 +390,6 @@ function animateSkillBars() {
     }
 }
 
-// Animate service cards when they come into view
 function animateServiceCards() {
     const serviceCards = document.querySelectorAll('.service-card');
     const servicesSection = document.querySelector('.services');
@@ -487,7 +405,6 @@ function animateServiceCards() {
         });
     }, { threshold: 0.1 });
 
-    // Set initial state for animation
     serviceCards.forEach(card => {
         card.style.opacity = '0';
         card.style.transform = 'translateY(30px)';
@@ -500,7 +417,6 @@ function animateServiceCards() {
     }
 }
 
-// Animate portfolio cards when they come into view
 function animatePortfolioCards() {
     const portfolioCards = document.querySelectorAll('.portfolio-card');
     const portfolioSection = document.querySelector('.portfolio');
@@ -516,7 +432,6 @@ function animatePortfolioCards() {
         });
     }, { threshold: 0.1 });
 
-    // Set initial state for animation
     portfolioCards.forEach(card => {
         card.style.opacity = '0';
         card.style.transform = 'translateY(30px)';
@@ -529,48 +444,7 @@ function animatePortfolioCards() {
     }
 }
 
-// Form submission with mailto fallback
-// function handleFormSubmission() {
-//     const contactForm = document.querySelector('.contact-form .form');
-
-//     if (contactForm) {
-//         contactForm.addEventListener('submit', function (e) {
-//             e.preventDefault();
-
-//             // Get form values
-//             // const nameInput = this.querySelector('input[type="text"]');
-//             // const emailInput = this.querySelector('input[type="email"]');
-//             // const subjectInput = this.querySelector('input[placeholder="Subject"]');
-//             const messageInput = this.querySelector('textarea');
-
-//             // const name = nameInput.value;
-//             // const email = emailInput.value;
-//             // const subject = subjectInput.value;
-//             const message = messageInput.value;
-
-//             // Basic validation
-//             if ( !message) {
-//                 showDownloadMessage('Please fill in all fields', 'error');
-//                 return;
-//             }
-
-//             // Create mailto link
-//             // const mailtoLink = `mailto:developer89365@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(`Name: ${name}%0AEmail: ${email}%0A%0AMessage: ${message}`)}`;
-//             const mailtoLink = `mailto:developer89365@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(`%0A%0AMessage: ${message}`)}`;
-//             // Open email client
-//             window.location.href = mailtoLink;
-
-//             // Show confirmation
-//             showDownloadMessage('Opening email client...', 'success');
-
-//             // Optional: Clear form after a delay
-//             setTimeout(() => {
-//                 this.reset();
-//             }, 1000);
-//         });
-//     }
-// }
-
+// Form submission
 function handleFormSubmission() {
     const contactForm = document.querySelector('.contact-form-wrapper .form');
 
@@ -578,26 +452,19 @@ function handleFormSubmission() {
         contactForm.addEventListener('submit', function (e) {
             e.preventDefault();
 
-            // Get only the message
             const messageInput = this.querySelector('textarea');
             const message = messageInput.value;
 
-            // Basic validation
             if (!message) {
                 showDownloadMessage('Please enter a message', 'error');
                 return;
             }
 
-            // Create mailto link with only message
             const mailtoLink = `mailto:developer89365@gmail.com?subject=Portfolio%20Inquiry&body=${encodeURIComponent(message)}`;
-
-            // Open email client
             window.location.href = mailtoLink;
 
-            // Show confirmation
             showDownloadMessage('Opening email client...', 'success');
 
-            // Clear form after a delay
             setTimeout(() => {
                 this.reset();
             }, 1000);
@@ -609,18 +476,11 @@ function handleFormSubmission() {
 document.addEventListener('DOMContentLoaded', function () {
     console.log('Portfolio loaded successfully');
 
-    // Add download styles
     addDownloadStyles();
-
-    // Initialize CV download functionality
     setupCVDownload();
-
-    // Initialize animations
     animateSkillBars();
     animateServiceCards();
     animatePortfolioCards();
-
-    // Initialize form handling
     handleFormSubmission();
 });
 
