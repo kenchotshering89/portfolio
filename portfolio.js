@@ -117,23 +117,23 @@ function setupCVDownload() {
                         link.href = blobUrl;
                         link.download = fileName;
                         link.style.display = 'none';
-                        
+
                         document.body.appendChild(link);
                         link.click();
                         document.body.removeChild(link);
-                        
+
                         setTimeout(() => {
                             window.URL.revokeObjectURL(blobUrl);
                         }, 1000);
 
                         showDownloadSuccess('CV Downloaded Successfully!');
-                        
+
                         console.log('CV download completed:', fileName);
                     })
                     .catch(error => {
                         clearTimeout(downloadTimeout);
                         console.error('Download failed:', error);
-                        
+
                         showDownloadMessage('Download failed. Please try again or contact me.', 'error');
                     })
                     .finally(() => {
@@ -149,45 +149,99 @@ function setupCVDownload() {
 }
 
 // Professional success message with visible panda animation
-function showDownloadSuccess(message) {
+// Professional CV Download functionality - Simplified
+function setupCVDownload() {
+    const downloadButtons = document.querySelectorAll('a[download]');
+
+    downloadButtons.forEach(button => {
+        button.addEventListener('click', function (e) {
+            if (this.getAttribute('href').includes('.pdf')) {
+                e.preventDefault();
+
+                const cvUrl = this.getAttribute('href');
+                const fileName = this.getAttribute('download') || 'Kencho_Tshering_CV.pdf';
+
+                // Store original button state
+                const originalContent = this.innerHTML;
+                const originalText = this.textContent;
+
+                // Show loading state
+                this.innerHTML = `
+                    <span class="loading-spinner"></span>
+                    <span class="loading-text">Preparing Download...</span>
+                `;
+                this.style.pointerEvents = 'none';
+                this.classList.add('btn-loading');
+
+                fetch(cvUrl)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                        }
+                        return response.blob();
+                    })
+                    .then(blob => {
+                        const blobUrl = window.URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = blobUrl;
+                        link.download = fileName;
+                        link.style.display = 'none';
+                        
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        
+                        setTimeout(() => {
+                            window.URL.revokeObjectURL(blobUrl);
+                        }, 1000);
+
+                        // Show success message
+                        showDownloadMessage('CV downloaded successfully!', 'success');
+                        
+                        // IMPORTANT: Reset button immediately after download
+                        resetDownloadButton(this, originalContent);
+                    })
+                    .catch(error => {
+                        console.error('Download failed:', error);
+                        showDownloadMessage('Download failed. Please try again.', 'error');
+                        
+                        // Reset button on error too
+                        resetDownloadButton(this, originalContent);
+                    });
+            }
+        });
+    });
+}
+
+// Function to reset download button
+function resetDownloadButton(button, originalContent) {
+    button.innerHTML = originalContent;
+    button.style.pointerEvents = 'auto';
+    button.classList.remove('btn-loading');
+}
+
+// Professional message function
+function showDownloadMessage(message, type) {
     // Remove existing messages
     const existingMessage = document.querySelector('.download-message');
     if (existingMessage) {
         existingMessage.remove();
     }
 
-    // Create centered message element
     const messageEl = document.createElement('div');
-    messageEl.className = 'download-message download-success';
+    messageEl.className = `download-message download-${type}`;
+    
+    const icons = {
+        success: '✓',
+        error: '⚠',
+        info: 'ⓘ'
+    };
     
     messageEl.innerHTML = `
         <div class="message-container">
-            <div class="panda-animation">
-                <div class="panda">
-                    <div class="panda-head">
-                        <div class="panda-ear left-ear"></div>
-                        <div class="panda-ear right-ear"></div>
-                        <div class="panda-face">
-                            <div class="eye-area left-eye">
-                                <div class="panda-eye"></div>
-                            </div>
-                            <div class="eye-area right-eye">
-                                <div class="panda-eye"></div>
-                            </div>
-                            <div class="panda-nose"></div>
-                            <div class="panda-mouth"></div>
-                        </div>
-                    </div>
-                    <div class="panda-body">
-                        <div class="panda-arm left-arm"></div>
-                        <div class="panda-arm right-arm thumbs-up">
-                            <div class="thumb"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <div class="message-icon">${icons[type]}</div>
             <div class="message-content">
-                <h3 class="message-title">Success!</h3>
+                <h3 class="message-title">${type === 'success' ? 'Success!' : type === 'error' ? 'Error' : 'Info'}</h3>
                 <p class="message-text">${message}</p>
             </div>
             <button class="message-close" onclick="this.parentElement.parentElement.remove()">
@@ -203,17 +257,10 @@ function showDownloadSuccess(message) {
     // Animate in
     requestAnimationFrame(() => {
         messageEl.classList.add('message-visible');
-        
-        // Trigger thumbs-up animation after a delay
-        setTimeout(() => {
-            const thumbsUp = messageEl.querySelector('.thumbs-up');
-            if (thumbsUp) {
-                thumbsUp.classList.add('animate-thumbs-up');
-            }
-        }, 600);
     });
 
     // Auto-remove after delay
+    const duration = type === 'error' ? 5000 : 3000;
     setTimeout(() => {
         if (messageEl.parentNode) {
             messageEl.classList.remove('message-visible');
@@ -221,66 +268,19 @@ function showDownloadSuccess(message) {
                 if (messageEl.parentNode) {
                     messageEl.remove();
                 }
-            }, 400);
-        }
-    }, 4000);
-}
-
-// Regular message function for errors/info
-function showDownloadMessage(message, type) {
-    const existingMessage = document.querySelector('.download-message');
-    if (existingMessage) {
-        existingMessage.remove();
-    }
-
-    const messageEl = document.createElement('div');
-    messageEl.className = `download-message download-${type}`;
-    
-    const icons = {
-        error: '⚠',
-        info: 'ⓘ'
-    };
-    
-    messageEl.innerHTML = `
-        <div class="message-container simple-message">
-            <div class="message-icon">${icons[type]}</div>
-            <div class="message-content">
-                <p class="message-text">${message}</p>
-            </div>
-            <button class="message-close" onclick="this.parentElement.parentElement.remove()">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <path d="M13 1L1 13M1 1L13 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-            </button>
-        </div>
-    `;
-
-    document.body.appendChild(messageEl);
-
-    requestAnimationFrame(() => {
-        messageEl.classList.add('message-visible');
-    });
-
-    setTimeout(() => {
-        if (messageEl.parentNode && type !== 'error') {
-            messageEl.classList.remove('message-visible');
-            setTimeout(() => {
-                if (messageEl.parentNode) {
-                    messageEl.remove();
-                }
             }, 300);
         }
-    }, type === 'error' ? 5000 : 3500);
+    }, duration);
 }
 
-// Add professional centered styles with visible panda
+// Add professional styles
 function addDownloadStyles() {
     const style = document.createElement('style');
     style.textContent = `
         /* Professional loading spinner */
         .btn-loading {
             position: relative;
-            overflow: hidden;
+            cursor: not-allowed;
         }
         
         .loading-spinner {
@@ -313,17 +313,16 @@ function addDownloadStyles() {
             transform: translate(-50%, -50%) scale(0.8);
             background: white;
             color: #1a1a1a;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.05);
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
             z-index: 10000;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             opacity: 0;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             border: 1px solid rgba(0, 0, 0, 0.1);
             overflow: hidden;
-            max-width: 400px;
+            max-width: 350px;
             width: 90%;
-            backdrop-filter: blur(20px);
         }
         
         .download-message.message-visible {
@@ -332,211 +331,42 @@ function addDownloadStyles() {
         }
         
         .message-container {
-            padding: 30px;
+            padding: 24px;
             text-align: center;
             position: relative;
         }
         
-        /* Visible Panda Animation Styles */
-        .panda-animation {
-            width: 140px;
-            height: 160px;
-            margin: 0 auto 20px;
-            position: relative;
+        .message-icon {
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+            display: block;
         }
         
-        .panda {
-            position: relative;
-            width: 100%;
-            height: 100%;
+        .download-success .message-icon {
+            color: #10b981;
         }
         
-        /* Panda Head - White with black patches */
-        .panda-head {
-            width: 100px;
-            height: 100px;
-            background: white;
-            border: 3px solid #000;
-            border-radius: 50%;
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 2;
+        .download-error .message-icon {
+            color: #ef4444;
         }
         
-        /* Black ear patches */
-        .panda-ear {
-            width: 35px;
-            height: 35px;
-            background: #000;
-            border-radius: 50%;
-            position: absolute;
-            top: -8px;
-            z-index: 1;
+        .download-info .message-icon {
+            color: #3b82f6;
         }
         
-        .panda-ear.left-ear {
-            left: -5px;
-        }
-        
-        .panda-ear.right-ear {
-            right: -5px;
-        }
-        
-        .panda-face {
-            position: relative;
-            width: 100%;
-            height: 100%;
-        }
-        
-        /* Eye patches - black areas around eyes */
-        .eye-area {
-            width: 35px;
-            height: 35px;
-            background: #000;
-            border-radius: 50%;
-            position: absolute;
-            top: 25px;
-        }
-        
-        .eye-area.left-eye {
-            left: 8px;
-        }
-        
-        .eye-area.right-eye {
-            right: 8px;
-        }
-        
-        /* Actual eyes - white circles */
-        .panda-eye {
-            width: 16px;
-            height: 16px;
-            background: white;
-            border-radius: 50%;
-            position: absolute;
-            top: 10px;
-            left: 10px;
-        }
-        
-        /* Eye pupils */
-        .panda-eye::after {
-            content: '';
-            width: 8px;
-            height: 8px;
-            background: #000;
-            border-radius: 50%;
-            position: absolute;
-            top: 4px;
-            left: 4px;
-        }
-        
-        /* Nose */
-        .panda-nose {
-            width: 18px;
-            height: 12px;
-            background: #000;
-            border-radius: 40% 40% 50% 50%;
-            position: absolute;
-            top: 55px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        
-        /* Mouth - simple smile */
-        .panda-mouth {
-            width: 25px;
-            height: 8px;
-            border-bottom: 3px solid #000;
-            border-radius: 0 0 20px 20px;
-            position: absolute;
-            top: 70px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        
-        /* Body - white with black arms */
-        .panda-body {
-            width: 90px;
-            height: 80px;
-            background: white;
-            border: 3px solid #000;
-            border-radius: 40px 40px 30px 30px;
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1;
-        }
-        
-        /* Arms - black */
-        .panda-arm {
-            width: 30px;
-            height: 50px;
-            background: #000;
-            border-radius: 15px;
-            position: absolute;
-            bottom: 40px;
-            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 3;
-        }
-        
-        .panda-arm.left-arm {
-            left: -12px;
-            transform: rotate(25deg);
-        }
-        
-        .panda-arm.right-arm {
-            right: -12px;
-            transform: rotate(-25deg);
-        }
-        
-        /* Thumb for thumbs-up */
-        .thumb {
-            width: 12px;
-            height: 20px;
-            background: #000;
-            border-radius: 6px;
-            position: absolute;
-            top: -15px;
-            left: 50%;
-            transform: translateX(-50%) rotate(-45deg);
-            transform-origin: bottom center;
-        }
-        
-        /* Thumbs-up animation */
-        .panda-arm.thumbs-up.animate-thumbs-up {
-            transform: rotate(-120deg) translateY(-5px);
-            animation: thumbsUpBounce 1s ease-in-out;
-        }
-        
-        .panda-arm.thumbs-up.animate-thumbs-up .thumb {
-            transform: translateX(-50%) rotate(45deg);
-        }
-        
-        @keyframes thumbsUpBounce {
-            0%, 100% { 
-                transform: rotate(-120deg) translateY(-5px); 
-            }
-            50% { 
-                transform: rotate(-120deg) translateY(-10px); 
-            }
-        }
-        
-        /* Message content */
         .message-content {
-            margin-top: 15px;
+            margin-bottom: 10px;
         }
         
         .message-title {
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             font-weight: 700;
             margin: 0 0 8px 0;
             color: #000;
         }
         
         .message-text {
-            font-size: 1rem;
+            font-size: 0.95rem;
             color: #666;
             margin: 0;
             line-height: 1.5;
@@ -546,31 +376,25 @@ function addDownloadStyles() {
         /* Close button */
         .message-close {
             position: absolute;
-            top: 15px;
-            right: 15px;
+            top: 12px;
+            right: 12px;
             background: rgba(0, 0, 0, 0.05);
             border: none;
             border-radius: 50%;
-            width: 32px;
-            height: 32px;
+            width: 28px;
+            height: 28px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             color: #666;
             transition: all 0.2s ease;
+            font-size: 16px;
         }
         
         .message-close:hover {
             background: rgba(0, 0, 0, 0.1);
             color: #000;
-        }
-        
-        /* Simple message styles */
-        .simple-message .message-icon {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            display: block;
         }
         
         /* Backdrop overlay */
@@ -585,7 +409,7 @@ function addDownloadStyles() {
             background: rgba(0, 0, 0, 0.5);
             z-index: -1;
             opacity: 0;
-            transition: opacity 0.4s ease;
+            transition: opacity 0.3s ease;
         }
         
         .download-message.message-visible::before {
@@ -595,39 +419,24 @@ function addDownloadStyles() {
         /* Mobile responsiveness */
         @media (max-width: 480px) {
             .download-message {
-                max-width: 320px;
+                max-width: 280px;
             }
             
             .message-container {
-                padding: 25px 20px;
+                padding: 20px;
             }
             
-            .panda-animation {
-                width: 120px;
-                height: 140px;
+            .message-icon {
+                font-size: 2rem;
+                margin-bottom: 12px;
             }
             
-            .panda-head {
-                width: 85px;
-                height: 85px;
+            .message-title {
+                font-size: 1.1rem;
             }
             
-            .panda-body {
-                width: 75px;
-                height: 65px;
-            }
-            
-            .eye-area {
-                width: 30px;
-                height: 30px;
-            }
-            
-            .eye-area.left-eye {
-                left: 6px;
-            }
-            
-            .eye-area.right-eye {
-                right: 6px;
+            .message-text {
+                font-size: 0.9rem;
             }
         }
     `;
