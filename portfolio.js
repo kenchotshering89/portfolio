@@ -77,7 +77,6 @@ window.addEventListener('scroll', () => {
 });
 
 // Simplified CV Download functionality
-// Professional CV Download functionality with visible panda
 function setupCVDownload() {
     const downloadButtons = document.querySelectorAll('a[download]');
 
@@ -186,25 +185,25 @@ function setupCVDownload() {
                         link.href = blobUrl;
                         link.download = fileName;
                         link.style.display = 'none';
-                        
+
                         document.body.appendChild(link);
                         link.click();
                         document.body.removeChild(link);
-                        
+
                         setTimeout(() => {
                             window.URL.revokeObjectURL(blobUrl);
                         }, 1000);
 
                         // Show success message
                         showDownloadMessage('CV downloaded successfully!', 'success');
-                        
+
                         // IMPORTANT: Reset button immediately after download
                         resetDownloadButton(this, originalContent);
                     })
                     .catch(error => {
                         console.error('Download failed:', error);
                         showDownloadMessage('Download failed. Please try again.', 'error');
-                        
+
                         // Reset button on error too
                         resetDownloadButton(this, originalContent);
                     });
@@ -230,13 +229,13 @@ function showDownloadMessage(message, type) {
 
     const messageEl = document.createElement('div');
     messageEl.className = `download-message download-${type}`;
-    
+
     const icons = {
         success: '✓',
         error: '⚠',
         info: 'ⓘ'
     };
-    
+
     messageEl.innerHTML = `
         <div class="message-container">
             <div class="message-icon">${icons[type]}</div>
@@ -444,7 +443,7 @@ function addDownloadStyles() {
 }
 
 // Initialize on page load
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     addDownloadStyles();
     setupCVDownload();
 });
