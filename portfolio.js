@@ -77,6 +77,7 @@ window.addEventListener('scroll', () => {
 });
 
 // Simplified CV Download functionality
+// Professional CV Download functionality with centered messages
 function setupCVDownload() {
     const downloadButtons = document.querySelectorAll('a[download]');
 
@@ -88,16 +89,25 @@ function setupCVDownload() {
                 const cvUrl = this.getAttribute('href');
                 const fileName = this.getAttribute('download') || 'Kencho_Tshering_CV.pdf';
 
-                // Show loading state
-                const originalText = this.textContent;
-                this.innerHTML = '<span class="loading-spinner">⏳</span> Downloading...';
+                // Professional loading state
+                this.classList.add('btn-loading');
+                const originalContent = this.innerHTML;
+                this.innerHTML = `
+                    <span class="loading-spinner"></span>
+                    <span class="loading-text">Preparing Download...</span>
+                `;
                 this.style.pointerEvents = 'none';
 
-                // Simple download attempt
+                // Download with timeout
+                const downloadTimeout = setTimeout(() => {
+                    showDownloadMessage('Processing your request...', 'info');
+                }, 2500);
+
                 fetch(cvUrl)
                     .then(response => {
+                        clearTimeout(downloadTimeout);
                         if (!response.ok) {
-                            throw new Error('File not found');
+                            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                         }
                         return response.blob();
                     })
@@ -106,94 +116,180 @@ function setupCVDownload() {
                         const link = document.createElement('a');
                         link.href = blobUrl;
                         link.download = fileName;
+                        link.style.display = 'none';
+                        
                         document.body.appendChild(link);
                         link.click();
                         document.body.removeChild(link);
-                        window.URL.revokeObjectURL(blobUrl);
+                        
+                        setTimeout(() => {
+                            window.URL.revokeObjectURL(blobUrl);
+                        }, 1000);
 
-                        showDownloadMessage('CV downloaded successfully!', 'success');
+                        showDownloadSuccess('CV Downloaded Successfully!');
+                        
+                        console.log('CV download completed:', fileName);
                     })
                     .catch(error => {
+                        clearTimeout(downloadTimeout);
                         console.error('Download failed:', error);
-                        showDownloadMessage('CV file not found. Please contact me directly.', 'error');
-
-                        // Fallback: Open contact section
-                        setTimeout(() => {
-                            document.querySelector('#contact').scrollIntoView({
-                                behavior: 'smooth'
-                            });
-                        }, 2000);
+                        
+                        showDownloadMessage('Download failed. Please try again or contact me.', 'error');
                     })
                     .finally(() => {
-                        // Reset button
                         setTimeout(() => {
-                            this.textContent = originalText;
+                            this.innerHTML = originalContent;
+                            this.classList.remove('btn-loading');
                             this.style.pointerEvents = 'auto';
-                        }, 1000);
+                        }, 800);
                     });
             }
         });
     });
 }
 
-// Download message function
-function showDownloadMessage(message, type) {
+// Professional success message with panda animation
+function showDownloadSuccess(message) {
     // Remove existing messages
     const existingMessage = document.querySelector('.download-message');
     if (existingMessage) {
         existingMessage.remove();
     }
 
-    // Create message element
+    // Create centered message element
     const messageEl = document.createElement('div');
-    messageEl.className = `download-message download-${type}`;
-    messageEl.textContent = message;
-
-    // Add styles
-    messageEl.style.cssText = `
-        position: fixed;
-        top: 100px;
-        right: 20px;
-        background: ${type === 'success' ? 'var(--accent-primary)' :
-            type === 'error' ? '#e74c3c' : '#f39c12'};
-        color: white;
-        padding: 1rem 1.5rem;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        z-index: 10000;
-        font-weight: 500;
-        transform: translateX(400px);
-        transition: transform 0.3s ease;
-        max-width: 300px;
+    messageEl.className = 'download-message download-success';
+    
+    messageEl.innerHTML = `
+        <div class="message-container">
+            <div class="panda-animation">
+                <div class="panda-head">
+                    <div class="panda-ear left-ear"></div>
+                    <div class="panda-ear right-ear"></div>
+                    <div class="panda-face">
+                        <div class="panda-eye left-eye"></div>
+                        <div class="panda-eye right-eye"></div>
+                        <div class="panda-nose"></div>
+                        <div class="panda-mouth"></div>
+                    </div>
+                </div>
+                <div class="panda-body">
+                    <div class="panda-arm left-arm"></div>
+                    <div class="panda-arm right-arm thumbs-up"></div>
+                </div>
+            </div>
+            <div class="message-content">
+                <h3 class="message-title">Success!</h3>
+                <p class="message-text">${message}</p>
+            </div>
+            <button class="message-close" onclick="this.parentElement.parentElement.remove()">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <path d="M13 1L1 13M1 1L13 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+        </div>
     `;
 
     document.body.appendChild(messageEl);
 
     // Animate in
-    setTimeout(() => {
-        messageEl.style.transform = 'translateX(0)';
-    }, 100);
-
-    // Remove after appropriate time
-    const duration = type === 'error' ? 5000 : 3000;
-    setTimeout(() => {
-        messageEl.style.transform = 'translateX(400px)';
+    requestAnimationFrame(() => {
+        messageEl.classList.add('message-visible');
+        
+        // Trigger thumbs-up animation after a delay
         setTimeout(() => {
-            if (messageEl.parentNode) {
-                messageEl.remove();
+            const thumbsUp = messageEl.querySelector('.thumbs-up');
+            if (thumbsUp) {
+                thumbsUp.classList.add('animate-thumbs-up');
             }
-        }, 300);
-    }, duration);
+        }, 600);
+    });
+
+    // Auto-remove after delay
+    setTimeout(() => {
+        if (messageEl.parentNode) {
+            messageEl.classList.remove('message-visible');
+            setTimeout(() => {
+                if (messageEl.parentNode) {
+                    messageEl.remove();
+                }
+            }, 400);
+        }
+    }, 4000);
 }
 
-// Add loading spinner styles
+// Regular message function for errors/info
+function showDownloadMessage(message, type) {
+    const existingMessage = document.querySelector('.download-message');
+    if (existingMessage) {
+        existingMessage.remove();
+    }
+
+    const messageEl = document.createElement('div');
+    messageEl.className = `download-message download-${type}`;
+    
+    const icons = {
+        error: '⚠',
+        info: 'ⓘ'
+    };
+    
+    messageEl.innerHTML = `
+        <div class="message-container">
+            <div class="message-icon">${icons[type]}</div>
+            <div class="message-content">
+                <p class="message-text">${message}</p>
+            </div>
+            <button class="message-close" onclick="this.parentElement.parentElement.remove()">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <path d="M13 1L1 13M1 1L13 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+        </div>
+    `;
+
+    document.body.appendChild(messageEl);
+
+    requestAnimationFrame(() => {
+        messageEl.classList.add('message-visible');
+    });
+
+    setTimeout(() => {
+        if (messageEl.parentNode && type !== 'error') {
+            messageEl.classList.remove('message-visible');
+            setTimeout(() => {
+                if (messageEl.parentNode) {
+                    messageEl.remove();
+                }
+            }, 300);
+        }
+    }, type === 'error' ? 5000 : 3500);
+}
+
+// Add professional centered styles
 function addDownloadStyles() {
     const style = document.createElement('style');
     style.textContent = `
+        /* Professional loading spinner */
+        .btn-loading {
+            position: relative;
+            overflow: hidden;
+        }
+        
         .loading-spinner {
             display: inline-block;
-            animation: spin 1s linear infinite;
-            margin-right: 0.5rem;
+            width: 16px;
+            height: 16px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        
+        .loading-text {
+            vertical-align: middle;
+            font-weight: 500;
         }
         
         @keyframes spin {
@@ -201,19 +297,287 @@ function addDownloadStyles() {
             100% { transform: rotate(360deg); }
         }
         
+        /* Centered message overlay */
         .download-message {
-            font-family: 'Inter', sans-serif;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            background: white;
+            color: #1a1a1a;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.05);
+            z-index: 10000;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            max-width: 400px;
+            width: 90%;
+            backdrop-filter: blur(20px);
         }
         
-        /* Enhanced button states for download */
-        .btn-secondary.downloading {
-            background: var(--accent-primary);
-            color: white;
-            cursor: not-allowed;
+        .download-message.message-visible {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+        
+        .message-container {
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        /* Panda Animation Styles */
+        .panda-animation {
+            width: 120px;
+            height: 140px;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+        
+        .panda-head {
+            width: 80px;
+            height: 80px;
+            background: #000;
+            border-radius: 50%;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+        }
+        
+        .panda-ear {
+            width: 30px;
+            height: 30px;
+            background: #000;
+            border-radius: 50%;
+            position: absolute;
+            top: -10px;
+        }
+        
+        .panda-ear.left-ear {
+            left: -5px;
+        }
+        
+        .panda-ear.right-ear {
+            right: -5px;
+        }
+        
+        .panda-face {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .panda-eye {
+            width: 20px;
+            height: 25px;
+            background: #fff;
+            border-radius: 50%;
+            position: absolute;
+            top: 25px;
+        }
+        
+        .panda-eye.left-eye {
+            left: 15px;
+            transform: rotate(-5deg);
+        }
+        
+        .panda-eye.right-eye {
+            right: 15px;
+            transform: rotate(5deg);
+        }
+        
+        .panda-eye::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #000;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 5px;
+            left: 6px;
+        }
+        
+        .panda-nose {
+            width: 15px;
+            height: 8px;
+            background: #000;
+            border-radius: 50%;
+            position: absolute;
+            top: 45px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .panda-mouth {
+            width: 20px;
+            height: 5px;
+            border-bottom: 2px solid #fff;
+            border-radius: 0 0 10px 10px;
+            position: absolute;
+            top: 55px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .panda-body {
+            width: 70px;
+            height: 70px;
+            background: #000;
+            border-radius: 35px 35px 30px 30px;
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1;
+        }
+        
+        .panda-arm {
+            width: 25px;
+            height: 40px;
+            background: #000;
+            border-radius: 12px;
+            position: absolute;
+            bottom: 50px;
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .panda-arm.left-arm {
+            left: -15px;
+            transform: rotate(30deg);
+        }
+        
+        .panda-arm.right-arm {
+            right: -15px;
+            transform: rotate(-30deg);
+        }
+        
+        .panda-arm.thumbs-up.animate-thumbs-up {
+            transform: rotate(-120deg) translateY(-10px);
+            animation: thumbsUpBounce 1s ease-in-out;
+        }
+        
+        @keyframes thumbsUpBounce {
+            0%, 100% { transform: rotate(-120deg) translateY(-10px); }
+            50% { transform: rotate(-120deg) translateY(-15px); }
+        }
+        
+        /* Message content */
+        .message-content {
+            margin-top: 10px;
+        }
+        
+        .message-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0 0 8px 0;
+            color: #000;
+        }
+        
+        .message-text {
+            font-size: 1rem;
+            color: #666;
+            margin: 0;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+        
+        /* Close button */
+        .message-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.05);
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #666;
+            transition: all 0.2s ease;
+        }
+        
+        .message-close:hover {
+            background: rgba(0, 0, 0, 0.1);
+            color: #000;
+        }
+        
+        /* Error and Info states */
+        .download-error {
+            border-left: 4px solid #ef4444;
+        }
+        
+        .download-info {
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .download-error .message-icon,
+        .download-info .message-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        /* Backdrop overlay */
+        .download-message::before {
+            content: '';
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        
+        .download-message.message-visible::before {
+            opacity: 1;
+        }
+        
+        /* Mobile responsiveness */
+        @media (max-width: 480px) {
+            .download-message {
+                max-width: 320px;
+            }
+            
+            .message-container {
+                padding: 25px 20px;
+            }
+            
+            .panda-animation {
+                width: 100px;
+                height: 120px;
+            }
+            
+            .panda-head {
+                width: 70px;
+                height: 70px;
+            }
+            
+            .panda-body {
+                width: 60px;
+                height: 60px;
+            }
         }
     `;
     document.head.appendChild(style);
 }
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    addDownloadStyles();
+    setupCVDownload();
+});
 
 // Animate skill bars when section comes into view
 function animateSkillBars() {
