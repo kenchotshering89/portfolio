@@ -77,7 +77,7 @@ window.addEventListener('scroll', () => {
 });
 
 // Simplified CV Download functionality
-// Professional CV Download functionality with centered messages
+// Professional CV Download functionality with visible panda
 function setupCVDownload() {
     const downloadButtons = document.querySelectorAll('a[download]');
 
@@ -117,23 +117,23 @@ function setupCVDownload() {
                         link.href = blobUrl;
                         link.download = fileName;
                         link.style.display = 'none';
-
+                        
                         document.body.appendChild(link);
                         link.click();
                         document.body.removeChild(link);
-
+                        
                         setTimeout(() => {
                             window.URL.revokeObjectURL(blobUrl);
                         }, 1000);
 
                         showDownloadSuccess('CV Downloaded Successfully!');
-
+                        
                         console.log('CV download completed:', fileName);
                     })
                     .catch(error => {
                         clearTimeout(downloadTimeout);
                         console.error('Download failed:', error);
-
+                        
                         showDownloadMessage('Download failed. Please try again or contact me.', 'error');
                     })
                     .finally(() => {
@@ -148,7 +148,7 @@ function setupCVDownload() {
     });
 }
 
-// Professional success message with panda animation
+// Professional success message with visible panda animation
 function showDownloadSuccess(message) {
     // Remove existing messages
     const existingMessage = document.querySelector('.download-message');
@@ -159,23 +159,31 @@ function showDownloadSuccess(message) {
     // Create centered message element
     const messageEl = document.createElement('div');
     messageEl.className = 'download-message download-success';
-
+    
     messageEl.innerHTML = `
         <div class="message-container">
             <div class="panda-animation">
-                <div class="panda-head">
-                    <div class="panda-ear left-ear"></div>
-                    <div class="panda-ear right-ear"></div>
-                    <div class="panda-face">
-                        <div class="panda-eye left-eye"></div>
-                        <div class="panda-eye right-eye"></div>
-                        <div class="panda-nose"></div>
-                        <div class="panda-mouth"></div>
+                <div class="panda">
+                    <div class="panda-head">
+                        <div class="panda-ear left-ear"></div>
+                        <div class="panda-ear right-ear"></div>
+                        <div class="panda-face">
+                            <div class="eye-area left-eye">
+                                <div class="panda-eye"></div>
+                            </div>
+                            <div class="eye-area right-eye">
+                                <div class="panda-eye"></div>
+                            </div>
+                            <div class="panda-nose"></div>
+                            <div class="panda-mouth"></div>
+                        </div>
                     </div>
-                </div>
-                <div class="panda-body">
-                    <div class="panda-arm left-arm"></div>
-                    <div class="panda-arm right-arm thumbs-up"></div>
+                    <div class="panda-body">
+                        <div class="panda-arm left-arm"></div>
+                        <div class="panda-arm right-arm thumbs-up">
+                            <div class="thumb"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="message-content">
@@ -195,7 +203,7 @@ function showDownloadSuccess(message) {
     // Animate in
     requestAnimationFrame(() => {
         messageEl.classList.add('message-visible');
-
+        
         // Trigger thumbs-up animation after a delay
         setTimeout(() => {
             const thumbsUp = messageEl.querySelector('.thumbs-up');
@@ -227,14 +235,14 @@ function showDownloadMessage(message, type) {
 
     const messageEl = document.createElement('div');
     messageEl.className = `download-message download-${type}`;
-
+    
     const icons = {
         error: '⚠',
         info: 'ⓘ'
     };
-
+    
     messageEl.innerHTML = `
-        <div class="message-container">
+        <div class="message-container simple-message">
             <div class="message-icon">${icons[type]}</div>
             <div class="message-content">
                 <p class="message-text">${message}</p>
@@ -265,7 +273,7 @@ function showDownloadMessage(message, type) {
     }, type === 'error' ? 5000 : 3500);
 }
 
-// Add professional centered styles
+// Add professional centered styles with visible panda
 function addDownloadStyles() {
     const style = document.createElement('style');
     style.textContent = `
@@ -329,18 +337,26 @@ function addDownloadStyles() {
             position: relative;
         }
         
-        /* Panda Animation Styles */
+        /* Visible Panda Animation Styles */
         .panda-animation {
-            width: 120px;
-            height: 140px;
+            width: 140px;
+            height: 160px;
             margin: 0 auto 20px;
             position: relative;
         }
         
+        .panda {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Panda Head - White with black patches */
         .panda-head {
-            width: 80px;
-            height: 80px;
-            background: #000;
+            width: 100px;
+            height: 100px;
+            background: white;
+            border: 3px solid #000;
             border-radius: 50%;
             position: absolute;
             top: 0;
@@ -349,13 +365,15 @@ function addDownloadStyles() {
             z-index: 2;
         }
         
+        /* Black ear patches */
         .panda-ear {
-            width: 30px;
-            height: 30px;
+            width: 35px;
+            height: 35px;
             background: #000;
             border-radius: 50%;
             position: absolute;
-            top: -10px;
+            top: -8px;
+            z-index: 1;
         }
         
         .panda-ear.left-ear {
@@ -372,25 +390,36 @@ function addDownloadStyles() {
             height: 100%;
         }
         
-        .panda-eye {
-            width: 20px;
-            height: 25px;
-            background: #fff;
+        /* Eye patches - black areas around eyes */
+        .eye-area {
+            width: 35px;
+            height: 35px;
+            background: #000;
             border-radius: 50%;
             position: absolute;
             top: 25px;
         }
         
-        .panda-eye.left-eye {
-            left: 15px;
-            transform: rotate(-5deg);
+        .eye-area.left-eye {
+            left: 8px;
         }
         
-        .panda-eye.right-eye {
-            right: 15px;
-            transform: rotate(5deg);
+        .eye-area.right-eye {
+            right: 8px;
         }
         
+        /* Actual eyes - white circles */
+        .panda-eye {
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
+        
+        /* Eye pupils */
         .panda-eye::after {
             content: '';
             width: 8px;
@@ -398,37 +427,41 @@ function addDownloadStyles() {
             background: #000;
             border-radius: 50%;
             position: absolute;
-            bottom: 5px;
-            left: 6px;
+            top: 4px;
+            left: 4px;
         }
         
+        /* Nose */
         .panda-nose {
-            width: 15px;
-            height: 8px;
+            width: 18px;
+            height: 12px;
             background: #000;
-            border-radius: 50%;
-            position: absolute;
-            top: 45px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        
-        .panda-mouth {
-            width: 20px;
-            height: 5px;
-            border-bottom: 2px solid #fff;
-            border-radius: 0 0 10px 10px;
+            border-radius: 40% 40% 50% 50%;
             position: absolute;
             top: 55px;
             left: 50%;
             transform: translateX(-50%);
         }
         
+        /* Mouth - simple smile */
+        .panda-mouth {
+            width: 25px;
+            height: 8px;
+            border-bottom: 3px solid #000;
+            border-radius: 0 0 20px 20px;
+            position: absolute;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        /* Body - white with black arms */
         .panda-body {
-            width: 70px;
-            height: 70px;
-            background: #000;
-            border-radius: 35px 35px 30px 30px;
+            width: 90px;
+            height: 80px;
+            background: white;
+            border: 3px solid #000;
+            border-radius: 40px 40px 30px 30px;
             position: absolute;
             bottom: 0;
             left: 50%;
@@ -436,39 +469,63 @@ function addDownloadStyles() {
             z-index: 1;
         }
         
+        /* Arms - black */
         .panda-arm {
-            width: 25px;
-            height: 40px;
+            width: 30px;
+            height: 50px;
             background: #000;
-            border-radius: 12px;
+            border-radius: 15px;
             position: absolute;
-            bottom: 50px;
+            bottom: 40px;
             transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 3;
         }
         
         .panda-arm.left-arm {
-            left: -15px;
-            transform: rotate(30deg);
+            left: -12px;
+            transform: rotate(25deg);
         }
         
         .panda-arm.right-arm {
-            right: -15px;
-            transform: rotate(-30deg);
+            right: -12px;
+            transform: rotate(-25deg);
         }
         
+        /* Thumb for thumbs-up */
+        .thumb {
+            width: 12px;
+            height: 20px;
+            background: #000;
+            border-radius: 6px;
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%) rotate(-45deg);
+            transform-origin: bottom center;
+        }
+        
+        /* Thumbs-up animation */
         .panda-arm.thumbs-up.animate-thumbs-up {
-            transform: rotate(-120deg) translateY(-10px);
+            transform: rotate(-120deg) translateY(-5px);
             animation: thumbsUpBounce 1s ease-in-out;
         }
         
+        .panda-arm.thumbs-up.animate-thumbs-up .thumb {
+            transform: translateX(-50%) rotate(45deg);
+        }
+        
         @keyframes thumbsUpBounce {
-            0%, 100% { transform: rotate(-120deg) translateY(-10px); }
-            50% { transform: rotate(-120deg) translateY(-15px); }
+            0%, 100% { 
+                transform: rotate(-120deg) translateY(-5px); 
+            }
+            50% { 
+                transform: rotate(-120deg) translateY(-10px); 
+            }
         }
         
         /* Message content */
         .message-content {
-            margin-top: 10px;
+            margin-top: 15px;
         }
         
         .message-title {
@@ -509,17 +566,8 @@ function addDownloadStyles() {
             color: #000;
         }
         
-        /* Error and Info states */
-        .download-error {
-            border-left: 4px solid #ef4444;
-        }
-        
-        .download-info {
-            border-left: 4px solid #3b82f6;
-        }
-        
-        .download-error .message-icon,
-        .download-info .message-icon {
+        /* Simple message styles */
+        .simple-message .message-icon {
             font-size: 3rem;
             margin-bottom: 15px;
             display: block;
@@ -555,18 +603,31 @@ function addDownloadStyles() {
             }
             
             .panda-animation {
-                width: 100px;
-                height: 120px;
+                width: 120px;
+                height: 140px;
             }
             
             .panda-head {
-                width: 70px;
-                height: 70px;
+                width: 85px;
+                height: 85px;
             }
             
             .panda-body {
-                width: 60px;
-                height: 60px;
+                width: 75px;
+                height: 65px;
+            }
+            
+            .eye-area {
+                width: 30px;
+                height: 30px;
+            }
+            
+            .eye-area.left-eye {
+                left: 6px;
+            }
+            
+            .eye-area.right-eye {
+                right: 6px;
             }
         }
     `;
@@ -574,7 +635,7 @@ function addDownloadStyles() {
 }
 
 // Initialize on page load
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function() {
     addDownloadStyles();
     setupCVDownload();
 });
