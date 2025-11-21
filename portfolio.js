@@ -5,7 +5,7 @@ const hamburger = document.querySelector('.hamburger');
 const navMenu = document.querySelector('.nav-menu');
 const navLinks = document.querySelectorAll('.nav-link');
 
-// Check for saved theme or prefer color scheme
+// Check for saved theme
 const savedTheme = localStorage.getItem('theme') ||
     (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
 
@@ -74,7 +74,7 @@ window.addEventListener('scroll', () => {
     }
 });
 
-// Professional CV Download functionality
+//CV Download functionality
 function setupCVDownload() {
     const downloadButtons = document.querySelectorAll('a[download]');
 
@@ -119,17 +119,15 @@ function setupCVDownload() {
                             window.URL.revokeObjectURL(blobUrl);
                         }, 1000);
 
-                        // Show success message
                         showDownloadMessage('CV downloaded successfully!', 'success');
 
-                        // Reset button immediately after download
                         resetDownloadButton(this, originalContent);
                     })
                     .catch(error => {
                         console.error('Download failed:', error);
                         showDownloadMessage('Download failed. Please try again.', 'error');
 
-                        // Reset button on error too
+
                         resetDownloadButton(this, originalContent);
                     });
             }
@@ -144,9 +142,8 @@ function resetDownloadButton(button, originalContent) {
     button.classList.remove('btn-loading');
 }
 
-// Professional message function
+// Message function
 function showDownloadMessage(message, type) {
-    // Remove existing messages
     const existingMessage = document.querySelector('.download-message');
     if (existingMessage) {
         existingMessage.remove();
@@ -197,7 +194,7 @@ function showDownloadMessage(message, type) {
     }, duration);
 }
 
-// Add professional styles
+// Styles
 function addDownloadStyles() {
     const style = document.createElement('style');
     style.textContent = `
